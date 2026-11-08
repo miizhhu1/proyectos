@@ -1,0 +1,118 @@
+package com.krakedev.proyectos.entidades;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "tareas")
+public class Tarea {
+
+//	Atributos:
+	// Identificador generado automáticamente por la base de datos
+	// poner integer para que no de problema cuando se envie null el id
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+
+	// descripcion obligatorio, máximo 200 caracteres
+	@Column(nullable = false, length = 100)
+	private String descripcion;
+
+	// Fecha limite obligatoria
+	@Column(nullable = false)
+	private LocalDate fechaLimite;
+
+	// costo estimado
+	@Column(nullable = false)
+	private double costoEstimado;
+
+	@ManyToOne
+	@JoinColumn(name = "proyecto_id", nullable = false) // llave foranea
+	private Proyecto proyecto;
+
+	@ManyToMany
+	@JoinTable(
+			name = "tarea_empleados", 
+			joinColumns = @JoinColumn(name = "tarea_id"), 
+			inverseJoinColumns = @JoinColumn(name = "empleado_id"))
+	private List<Empleado> empleados;
+
+	public Tarea() {
+		super();
+	}
+
+	public Tarea(Integer id, String descripcion, LocalDate fechaLimite, double costoEstimado, Proyecto proyecto,
+			List<Empleado> empleados) {
+		super();
+		this.id = id;
+		this.descripcion = descripcion;
+		this.fechaLimite = fechaLimite;
+		this.costoEstimado = costoEstimado;
+		this.proyecto = proyecto;
+		this.empleados = empleados;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
+	public LocalDate getFechaLimite() {
+		return fechaLimite;
+	}
+
+	public void setFechaLimite(LocalDate fechaLimite) {
+		this.fechaLimite = fechaLimite;
+	}
+
+	public double getCostoEstimado() {
+		return costoEstimado;
+	}
+
+	public void setCostoEstimado(double costoEstimado) {
+		this.costoEstimado = costoEstimado;
+	}
+
+	public Proyecto getProyecto() {
+		return proyecto;
+	}
+
+	public void setProyecto(Proyecto proyecto) {
+		this.proyecto = proyecto;
+	}
+
+	public List<Empleado> getEmpleados() {
+		return empleados;
+	}
+
+	public void setEmpleados(List<Empleado> empleados) {
+		this.empleados = empleados;
+	}
+	
+	
+
+
+
+}
