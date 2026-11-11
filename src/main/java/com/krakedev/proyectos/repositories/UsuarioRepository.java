@@ -1,11 +1,9 @@
 package com.krakedev.proyectos.repositories;
 
-import java.util.Optional;
-
-
 import com.krakedev.proyectos.entidades.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 
-public class UsuarioRepository extends JpaRepository<Usuario,Integer>{
+public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 	Optional<Usuario> findByUsername(String username);
 }
