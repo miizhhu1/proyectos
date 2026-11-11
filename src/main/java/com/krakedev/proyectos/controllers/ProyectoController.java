@@ -4,7 +4,15 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.krakedev.proyectos.entidades.Proyecto;
 import com.krakedev.proyectos.services.ProyectoServices;
@@ -13,92 +21,98 @@ import com.krakedev.proyectos.services.ProyectoServices;
 @RequestMapping("/api/proyectos")
 public class ProyectoController {
 
-    private final ProyectoServices service;
+	private final ProyectoServices service;
 
-    // Inyección de dependencias
-    public ProyectoController(ProyectoServices service) {
-        this.service = service;
-    }
+	// Inyección de dependencias
+	public ProyectoController(ProyectoServices service) {
+		this.service = service;
+	}
 
-    // POST: guardar un proyecto
-    @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody Proyecto proyecto) {
-        try {
-            Proyecto proyectoGuardado = service.guardar(proyecto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(proyectoGuardado);
+	// Solo ADMIN puede crear proyectos
+	@PreAuthorize("hasRole('ADMIN')")
+	// POST: guardar un proyecto
+	@PostMapping
+	public ResponseEntity<?> guardar(@RequestBody Proyecto proyecto) {
+		try {
+			Proyecto proyectoGuardado = service.guardar(proyecto);
+			return ResponseEntity.status(HttpStatus.CREATED).body(proyectoGuardado);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al guardar el proyecto: " + e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al guardar el proyecto: " + e.getMessage());
+		}
+	}
 
-    // GET: listar todos los proyectos
-    @GetMapping
-    public ResponseEntity<?> listar() {
-        try {
-            List<Proyecto> proyectos = service.listar();
-            return ResponseEntity.ok(proyectos);
+	// ADMIN y USER pueden listar proyectos
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al listar los proyectos: " + e.getMessage());
-        }
-    }
+	// GET: listar todos los proyectos
+	@GetMapping
+	public ResponseEntity<?> listar() {
+		try {
+			List<Proyecto> proyectos = service.listar();
+			return ResponseEntity.ok(proyectos);
 
-    // GET: buscar un proyecto por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<?> buscar(@PathVariable Integer id) {
-        try {
-            Proyecto proyecto = service.buscar(id);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al listar los proyectos: " + e.getMessage());
+		}
+	}
 
-            if (proyecto == null) {
-                return ResponseEntity.notFound().build();
-            }
+	// GET: buscar un proyecto por ID
+	@GetMapping("/{id}")
+	public ResponseEntity<?> buscar(@PathVariable Integer id) {
+		try {
+			Proyecto proyecto = service.buscar(id);
 
-            return ResponseEntity.ok(proyecto);
+			if (proyecto == null) {
+				return ResponseEntity.notFound().build();
+			}
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al buscar el proyecto: " + e.getMessage());
-        }
-    }
+			return ResponseEntity.ok(proyecto);
 
-    // PUT: actualizar un proyecto
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer id,
-                                        @RequestBody Proyecto proyecto) {
-        try {
-            Proyecto proyectoActualizado = service.actualizar(id, proyecto);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al buscar el proyecto: " + e.getMessage());
+		}
+	}
 
-            if (proyectoActualizado == null) {
-                return ResponseEntity.notFound().build();
-            }
+	// PUT: actualizar un proyecto
+	@PutMapping("/{id}")
+	public ResponseEntity<?> actualizar(@PathVariable Integer id, @RequestBody Proyecto proyecto) {
+		try {
+			Proyecto proyectoActualizado = service.actualizar(id, proyecto);
 
-            return ResponseEntity.ok(proyectoActualizado);
+			if (proyectoActualizado == null) {
+				return ResponseEntity.notFound().build();
+			}
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al actualizar el proyecto: " + e.getMessage());
-        }
-    }
+			return ResponseEntity.ok(proyectoActualizado);
 
-    // DELETE: eliminar un proyecto
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Integer id) {
-        try {
-            Proyecto proyecto = service.buscar(id);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al actualizar el proyecto: " + e.getMessage());
+		}
+	}
 
-            if (proyecto == null) {
-                return ResponseEntity.notFound().build();
-            }
+	// Solo ADMIN puede eliminar proyectos
+	@PreAuthorize("hasRole('ADMIN')")
+	// DELETE: eliminar un proyecto
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> eliminar(@PathVariable Integer id) {
+		try {
+			Proyecto proyecto = service.buscar(id);
 
-            service.eliminar(id);
-            return ResponseEntity.noContent().build();
+			if (proyecto == null) {
+				return ResponseEntity.notFound().build();
+			}
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al eliminar el proyecto: " + e.getMessage());
-        }
-    }
+			service.eliminar(id);
+			return ResponseEntity.noContent().build();
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al eliminar el proyecto: " + e.getMessage());
+		}
+	}
 }
