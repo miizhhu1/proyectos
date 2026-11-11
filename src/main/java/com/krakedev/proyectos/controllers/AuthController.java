@@ -19,7 +19,7 @@ import com.krakedev.proyectos.services.UsuarioService;
 import com.krakedev.proyectos.utils.JwtUtil;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 	private final UsuarioService usuarioService;
 	private final UsuarioRepository usuarioRepository;
